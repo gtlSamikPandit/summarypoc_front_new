@@ -165,6 +165,14 @@ function MasterPage() {
     setStoredResponse(null); // Clear the stored response when a suggestion is selected  
   };
 
+// This function confirms the selection and moves to the selected panel
+const confirmSelection = () => {
+  if (selectedPanel !== null) {
+    setSelectedSuggestion(selectedPanel); // Ensure selected suggestion is set
+    setPanelState('selected');
+  }
+};
+
   const checkForStoredResponse = () => {
     setLoading(true);
     axios.post('https://connectapi.thegatewaycorp.com/api/check-response/', { diagnose, cause, solution })
@@ -219,6 +227,10 @@ const handleSaveClick = () => {
       console.error('Error saving the response:', error);
       setError('Failed to save the response. Please try again.');
     });
+};
+
+const handleBackToSuggestions = () => {
+  setPanelState('suggestions');
 };
 
   return (
@@ -280,65 +292,91 @@ const handleSaveClick = () => {
 
       {/* Suggestions panel */}
       {panelState === 'suggestions' && (
+  <>
+    <div style={{ marginBottom: "75vh", background: "white", textAlign: "left", padding: "15px", borderRadius: "15px", fontSize: "12px" }}>
+      <Typography variant="h6"><b>Diagnose:</b> {diagnose}</Typography>
+      <Typography variant="h6"><b>Cause:</b> {cause}</Typography>
+      <Typography variant="h6"><b>Solution:</b> {solution}</Typography>
+    </div>
+    <Box
+      sx={{
+        position: 'absolute',
+        bottom: '25vh',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        height: '55vh',
+      }}
+    >
+      {suggestions.map((suggestion, index) => (
+        <AnimatedBox
+          key={`suggestion-${index}`}
+          selected={selectedPanel === index}
+          onClick={() => setSelectedPanel(index)}
+          animation={fadeIn}
+          sx={{
+            border: selectedPanel === index ? '2px solid blue' : 'none',
+            // other styling properties
+          }}
+        >
+          <TextField
+            multiline
+            rows={8}
+            placeholder={`Suggestion ${index + 1}`}
+            style={{
+              width: '400px',
+              fontSize: '18px',
+            }}
+            value={suggestion}
+          />
+        </AnimatedBox>
+      ))}
+      {/* OK Button to confirm selection */}
+      {selectedPanel !== null && (
+        <Box
+          sx={{
+            position: 'absolute',
+            right: 75,
+            bottom: 50,
+          }}
+        >
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={confirmSelection}
+          >
+            OK
+          </Button>
+        </Box>
+      )}
+      {/* Regenerate Button at bottom right */}
+      <Box
+        sx={{
+          position: 'absolute',
+          right: 75,
+          bottom: 10,
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={regenerateSuggestions}
+        >
+          Regenerate
+        </Button>
+      </Box>
+    </Box>
+  </>
+)}
+      {/* Selected panel */}
+      {panelState === 'selected' && (
         <>
         <div style={{marginBottom: "75vh", background: "white", textAlign: "left", padding: "15px", borderRadius: "15px", fontSize: "12px"}}>
         <Typography variant="h6"><b>Diagnose:</b>  {diagnose}</Typography>
         <Typography variant="h6"><b>Cause:</b>  {cause}</Typography>
         <Typography variant="h6"><b>Solution:</b>  {solution}</Typography>
       </div>
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '25vh',
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'space-evenly',
-            alignItems: 'center',
-            height: '55vh',
-          }}
-        > 
-          {suggestions.map((suggestion, index) => (
-            <AnimatedBox
-              key={`suggestion-${index}`}
-              selected={selectedPanel === index}
-              onClick={() => handlePanelSelect(index)}
-              animation={fadeIn}
-            >
-              {selectedPanel === index && <TickIcon />}
-              <TextField
-                multiline
-                rows={8}
-                placeholder={`Suggestion ${index + 1}`}
-                style={{
-                  width: '400px',
-                  fontSize: '18px',
-                }}
-                value={suggestion}
-              />
-            </AnimatedBox>
-          ))}
-          {/* Regenerate Button at bottom right */}
-          <Box
-            sx={{
-              position: 'absolute',
-              right: 75,
-              bottom: 50,
-            }}
-          >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={regenerateSuggestions}
-            >
-              Regenerate
-            </Button>
-          </Box>
-        </Box>
-        </>
-      )}
-
-      {/* Selected panel */}
-      {panelState === 'selected' && (
         <Box
           sx={{
             position: 'absolute',
@@ -360,6 +398,7 @@ const handleSaveClick = () => {
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between', // Align items to the edges
               justifyContent: 'center',
               flexDirection: 'column',
               gap: 2,
@@ -371,7 +410,7 @@ const handleSaveClick = () => {
             <TextField
               multiline
               rows={3}
-              label={`Suggestion ${selectedPanel + 1}`}
+              label={`Suggestion ${selectedSuggestion + 1}`}
               variant="outlined"
               fullWidth
               margin="normal"
@@ -391,6 +430,16 @@ const handleSaveClick = () => {
             </Button>
           </AnimatedBox>
         </Box>
+          {/* Back Button */}
+        <Button
+          variant="contained"
+          color="success"
+          onClick={handleBackToSuggestions}
+          sx = {{bottom: "18vh"}}
+        >
+          Back to Suggestions
+        </Button>
+        </>
       )}
     </React.Fragment>
   );
