@@ -131,7 +131,7 @@ function MasterPage() {
     setPanelState('fading');
     setError(null);
   
-    axios.post('https://connectapi.thegatewaycorp.com/api/summarize/', { diagnose, cause, solution })
+    axios.post('https://api.yomo.ooo/api/summarize/', { diagnose, cause, solution })
       .then(response => {
         const responseData = response.data;
         // Check for stored response
@@ -175,7 +175,7 @@ const confirmSelection = () => {
 
   const checkForStoredResponse = () => {
     setLoading(true);
-    axios.post('https://connectapi.thegatewaycorp.com/api/check-response/', { diagnose, cause, solution })
+    axios.post('https://api.yomo.ooo/api/check-response/', { diagnose, cause, solution })
       .then(response => {
         const { diagnose, cause, solution, selected_response } = response.data;
         
@@ -212,7 +212,7 @@ const handleSaveClick = () => {
     selected_response: suggestions[selectedSuggestion]
   };
 
-  axios.post('https://connectapi.thegatewaycorp.com/api/store-response/', payload)
+  axios.post('https://api.yomo.ooo/api/store-response/', payload)
     .then(response => {
       // Handle successful response
       alert('Response saved successfully. The page will refresh in 2 seconds.');
